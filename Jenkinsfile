@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     tools {
-        jdk 'JDK17'  // Make sure you have JDK 17 configured in Jenkins Global Tool Configuration
+        jdk 'JDK17'
     }
     
     environment {
@@ -15,7 +15,12 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, shallow: true]],
+                    userRemoteConfigs: [[url: 'https://github.com/msfayoub/Airbnb.git']]
+                ])
             }
         }
         
