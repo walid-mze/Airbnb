@@ -62,20 +62,25 @@ pipeline {
             }
         }
         
-        stage('Package WAR') {
-            steps {
-                echo 'Creating WAR file...'
-                bat '''
-                    if not exist "dist" mkdir dist
-                    xcopy /E /I /Y WebContent dist\\Airbnb
-                    if not exist "dist\\Airbnb\\WEB-INF\\classes" mkdir dist\\Airbnb\\WEB-INF\\classes
-                    xcopy /E /I /Y build\\classes dist\\Airbnb\\WEB-INF\\classes
-                    xcopy /E /I /Y src\\META-INF dist\\Airbnb\\WEB-INF\\classes\\META-INF
-                    cd dist
-                    jar -cvf airbnb.war -C Airbnb .
-                '''
-            }
-        }
+stage('Package WAR') {
+    steps {
+        echo 'Creating WAR file...'
+        bat '''
+            if not exist "dist" mkdir dist
+
+            xcopy /E /I /Y WebContent dist\\Airbnb
+
+            if not exist "dist\\Airbnb\\WEB-INF\\classes" mkdir dist\\Airbnb\\WEB-INF\\classes
+            xcopy /E /I /Y build\\classes dist\\Airbnb\\WEB-INF\\classes
+
+            xcopy /E /I /Y src\\META-INF dist\\Airbnb\\WEB-INF\\classes\\META-INF
+
+            cd dist
+            "%JAVA_HOME%\\bin\\jar" -cvf airbnb.war -C Airbnb .
+        '''
+    }
+}
+
         
         stage('Archive Artifacts') {
             steps {
