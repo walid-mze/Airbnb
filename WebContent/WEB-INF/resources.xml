@@ -2,8 +2,8 @@
 	<Resource id="airbnbdb" type="DataSource">
 	    JdbcDriver com.mysql.cj.jdbc.Driver
 	    JdbcUrl jdbc:mysql://localhost:3306/airbnbdb?useUnicode=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC
-	    UserName user
-	    Password password
+	    UserName root
+	    Password AYOUBMOUSSAIFcs2006
 	    JtaManaged true
   	</Resource>
 </tomee>
