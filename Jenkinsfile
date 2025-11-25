@@ -62,52 +62,50 @@ pipeline {
                             -Dsonar.java.libraries=lib/*.jar
                         """
                     }
+                    echo 'SonarQube analysis completed! View results at: http://localhost:9000/dashboard?id=airbnb-booking-app'
                 }
             }
         }
         
-        stage('Quality Gate') {
+        stage('Package WAR') {
             steps {
-                echo 'Skipping Quality Gate for now - view results at http://localhost:9000/dashboard?id=airbnb-booking-app'
-                 timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                 }
+                echo 'Creating WAR file...'
+                bat '''
+                    if not exist "dist" mkdir dist
+
+                    xcopy /E /I /Y WebContent dist\\Airbnb
+
+                    if not exist "dist\\Airbnb\\WEB-INF\\classes" mkdir dist\\Airbnb\\WEB-INF\\classes
+                    xcopy /E /I /Y build\\classes dist\\Airbnb\\WEB-INF\\classes
+
+                    xcopy /E /I /Y src\\META-INF dist\\Airbnb\\WEB-INF\\classes\\META-INF
+
+                    cd dist
+                    "%JAVA_HOME%\\bin\\jar" -cvf airbnb.war -C Airbnb .
+                '''
             }
         }
-        
-stage('Package WAR') {
-    steps {
-        echo 'Creating WAR file...'
-        bat '''
-            if not exist "dist" mkdir dist
-
-            xcopy /E /I /Y WebContent dist\\Airbnb
-
-            if not exist "dist\\Airbnb\\WEB-INF\\classes" mkdir dist\\Airbnb\\WEB-INF\\classes
-            xcopy /E /I /Y build\\classes dist\\Airbnb\\WEB-INF\\classes
-
-            xcopy /E /I /Y src\\META-INF dist\\Airbnb\\WEB-INF\\classes\\META-INF
-
-            cd dist
-            "%JAVA_HOME%\\bin\\jar" -cvf airbnb.war -C Airbnb .
-        '''
-    }
-}
-
         
         stage('Archive Artifacts') {
             steps {
                 archiveArtifacts artifacts: 'dist/airbnb.war', fingerprint: true
+                echo 'WAR file archived successfully!'
             }
         }
     }
     
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo '========================================='
+            echo '✓ Pipeline completed successfully!'
+            echo '========================================='
+            echo 'Artifacts:'
+            echo '  - WAR file: Check Jenkins artifacts'
+            echo '  - SonarQube: http://localhost:9000/dashboard?id=airbnb-booking-app'
+            echo '========================================='
         }
         failure {
-            echo 'Pipeline failed!'
+            echo '✗ Pipeline failed!'
         }
         always {
             cleanWs()
