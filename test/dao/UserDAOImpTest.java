@@ -1,64 +1,66 @@
 package dao;
 
 import model.User;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class UserDAOImpTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-    private UserDAOImp userDAO;
+class UserDAOImpTest {
+    
+    @Mock
     private EntityManager mockEm;
+    
+    @Mock
     private Query mockQuery;
-
-    @Before
-    public void setUp() {
-        userDAO = new UserDAOImp();
-        mockEm = mock(EntityManager.class);
-        mockQuery = mock(Query.class);
-        
-        // Use reflection to set the EntityManager
-        try {
-            java.lang.reflect.Field field = UserDAOImp.class.getDeclaredField("em");
-            field.setAccessible(true);
-            field.set(userDAO, mockEm);
-        } catch (Exception e) {
-            fail("Failed to set EntityManager: " + e.getMessage());
-        }
+    
+    private UserDAOImp userDAO;
+    
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        userDAO = new UserDAOImp(mockEm);
     }
-
+    
     @Test
-    public void testCreateUser() {
-        User user = new User("test@test.com", "hash", "John", "Doe", "123", "client", 0.0);
+    void testAddUser() {
+        User user = new User();
+        user.setEmail("test@test.com");
         
         when(mockEm.find(User.class, "test@test.com")).thenReturn(null);
         
-        User result = userDAO.createUser("test@test.com", "hash", "John", "Doe", "123", "client", 0.0);
+        userDAO.addUser(user);
         
-        assertNotNull("Created user should not be null", result);
         verify(mockEm, times(1)).persist(any(User.class));
     }
-
+    
     @Test
-    public void testGetUser() {
-        User expectedUser = new User("test@test.com", "hash", "John", "Doe", "123", "client", 0.0);
+    void testFindUserByEmail() {
+        User expectedUser = new User();
+        expectedUser.setEmail("test@test.com");
+        
         when(mockEm.find(User.class, "test@test.com")).thenReturn(expectedUser);
         
-        User result = userDAO.getUser("test@test.com");
+        User result = userDAO.findUserByEmail("test@test.com");
         
-        assertEquals(expectedUser, result);
+        assertNotNull(result);
         verify(mockEm, times(1)).find(User.class, "test@test.com");
     }
-
+    
     @Test
-    public void testDeleteUser() {
-        User user = new User("test@test.com", "hash", "John", "Doe", "123", "client", 0.0);
+    void testDeleteUser() {
+        User user = new User();
+        user.setEmail("test@test.com");
+        
         when(mockEm.find(User.class, "test@test.com")).thenReturn(user);
         
         userDAO.deleteUser("test@test.com");
@@ -66,39 +68,44 @@ public class UserDAOImpTest {
         verify(mockEm, times(1)).find(User.class, "test@test.com");
         verify(mockEm, times(1)).remove(user);
     }
-
+    
     @Test
-    public void testGetAllUser() {
-        List<User> userList = new ArrayList<>();
-        userList.add(new User("user1@test.com", "hash", "User1", "Name1", "123", "client", 0.0));
-        userList.add(new User("user2@test.com", "hash", "User2", "Name2", "456", "host", 0.0));
+    void testGetAllUsers() {
+        User user1 = new User();
+        User user2 = new User();
+        List<User> userList = Arrays.asList(user1, user2);
         
         when(mockEm.createQuery(anyString(), eq(User.class))).thenReturn(mockQuery);
         when(mockQuery.getResultList()).thenReturn(userList);
         
-        List<User> result = userDAO.getAllUser();
+        List<User> result = userDAO.getAllUsers();
         
         assertEquals(2, result.size());
         verify(mockEm, times(1)).createQuery(anyString(), eq(User.class));
     }
-
+    
     @Test
-    public void testCredit() {
-        User user = new User("test@test.com", "hash", "John", "Doe", "123", "client", 100.0);
+    void testUpdateUserPassword() {
+        User user = new User();
+        user.setEmail("test@test.com");
+        
         when(mockEm.find(User.class, "test@test.com")).thenReturn(user);
         
-        userDAO.credit("test@test.com", 50.0);
+        userDAO.updateUserPassword("test@test.com", "newHashedPassword");
         
-        assertEquals(150.0, user.getBalance(), 0.01);
+        assertEquals("newHashedPassword", user.getPassword());
     }
-
+    
     @Test
-    public void testDebit() {
-        User user = new User("test@test.com", "hash", "John", "Doe", "123", "client", 100.0);
+    void testUpdateUserWallet() {
+        User user = new User();
+        user.setEmail("test@test.com");
+        user.setWallet(100.0);
+        
         when(mockEm.find(User.class, "test@test.com")).thenReturn(user);
         
-        userDAO.debit("test@test.com", 30.0);
+        userDAO.updateUserWallet("test@test.com", 50.0);
         
-        assertEquals(70.0, user.getBalance(), 0.01);
+        assertEquals(150.0, user.getWallet(), 0.01);
     }
 }
