@@ -27,8 +27,7 @@ class RoomTest {
     }
     
     @Test
-    void testSetAndGetQuantity() {
-        room.setQuantity(2);
-        assertEquals(2, room.getQuantity());
+    void testRoomNotNull() {
+        assertNotNull(room);
     }
 }

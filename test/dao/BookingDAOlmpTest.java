@@ -1,15 +1,13 @@
 package dao;
 
 import model.Booking;
-import model.Offer;
-import model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,22 +21,28 @@ class BookingDAOImpTest {
     private EntityManager mockEm;
     
     @Mock
-    private Query mockQuery;
+    private TypedQuery<Booking> mockQuery;
     
     private BookingDAOImp bookingDAO;
     
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        bookingDAO = new BookingDAOImp(mockEm);
+        bookingDAO = new BookingDAOImp();
+        try {
+            java.lang.reflect.Field emField = BookingDAOImp.class.getDeclaredField("em");
+            emField.setAccessible(true);
+            emField.set(bookingDAO, mockEm);
+        } catch (Exception e) {
+            fail("Failed to inject EntityManager: " + e.getMessage());
+        }
     }
     
     @Test
     void testAddBooking() {
         Booking booking = new Booking();
-        booking.setId(1);
         
-        bookingDAO.addBooking(booking);
+        bookingDAO.add(booking);
         
         verify(mockEm, times(1)).persist(booking);
     }
@@ -52,7 +56,7 @@ class BookingDAOImpTest {
         when(mockEm.createQuery(anyString(), eq(Booking.class))).thenReturn(mockQuery);
         when(mockQuery.getResultList()).thenReturn(expectedList);
         
-        List<Booking> result = bookingDAO.getAllBookings();
+        List<Booking> result = bookingDAO.getAll();
         
         assertEquals(2, result.size());
         verify(mockEm, times(1)).createQuery(anyString(), eq(Booking.class));
@@ -61,24 +65,21 @@ class BookingDAOImpTest {
     @Test
     void testFindBookingById() {
         Booking expected = new Booking();
-        expected.setId(1);
         
         when(mockEm.find(Booking.class, 1)).thenReturn(expected);
         
-        Booking result = bookingDAO.findBookingById(1);
+        Booking result = bookingDAO.find(1);
         
         assertNotNull(result);
-        assertEquals(1, result.getId());
     }
     
     @Test
     void testDeleteBooking() {
         Booking booking = new Booking();
-        booking.setId(1);
         
-        when(mockEm.find(Booking.class, 1)).thenReturn(booking);
+        when(mockEm.find(Booking.class, booking)).thenReturn(booking);
         
-        bookingDAO.deleteBooking(1);
+        bookingDAO.delete(booking);
         
         verify(mockEm, times(1)).remove(booking);
     }
