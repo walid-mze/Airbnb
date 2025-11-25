@@ -7,8 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -100,5 +102,80 @@ public class UserDAOImpTest {
 
         verify(mockEm).find(User.class, mailAddress);
         assertEquals(newHashedPassword, user.getHashedPassword());
+    }
+
+    @Test
+    public void testGetAllUser() {
+        TypedQuery<User> mockQuery = mock(TypedQuery.class);
+        when(mockEm.createQuery("SELECT u FROM User u", User.class)).thenReturn(mockQuery);
+        when(mockQuery.getResultList()).thenReturn(Arrays.asList(new User(), new User()));
+
+        userDAO.getAllUser();
+
+        verify(mockEm).createQuery("SELECT u FROM User u", User.class);
+        verify(mockQuery).getResultList();
+    }
+
+    @Test
+    public void testChangeName() {
+        String mailAddress = "test@example.com";
+        String newName = "NewLastName";
+        User user = new User(mailAddress, "password", "John", "Doe", "1234567890", "customer", 100.0);
+        when(mockEm.find(User.class, mailAddress)).thenReturn(user);
+
+        userDAO.changeName(mailAddress, newName);
+
+        verify(mockEm).find(User.class, mailAddress);
+        assertEquals(newName, user.getName());
+    }
+
+    @Test
+    public void testChangeFirstname() {
+        String mailAddress = "test@example.com";
+        String newFirstname = "Jane";
+        User user = new User(mailAddress, "password", "John", "Doe", "1234567890", "customer", 100.0);
+        when(mockEm.find(User.class, mailAddress)).thenReturn(user);
+
+        userDAO.changeFirstname(mailAddress, newFirstname);
+
+        verify(mockEm).find(User.class, mailAddress);
+        assertEquals(newFirstname, user.getFirstname());
+    }
+
+    @Test
+    public void testChangePhoneNumber() {
+        String mailAddress = "test@example.com";
+        String newPhone = "9999999999";
+        User user = new User(mailAddress, "password", "John", "Doe", "1234567890", "customer", 100.0);
+        when(mockEm.find(User.class, mailAddress)).thenReturn(user);
+
+        userDAO.changePhoneNumber(mailAddress, newPhone);
+
+        verify(mockEm).find(User.class, mailAddress);
+        assertEquals(newPhone, user.getPhoneNumber());
+    }
+
+    @Test
+    public void testCredit() {
+        String mailAddress = "test@example.com";
+        User user = new User(mailAddress, "password", "John", "Doe", "1234567890", "customer", 100.0);
+        when(mockEm.find(User.class, mailAddress)).thenReturn(user);
+
+        userDAO.credit(mailAddress, 50.0);
+
+        verify(mockEm).find(User.class, mailAddress);
+        assertEquals(150.0, user.getBalance());
+    }
+
+    @Test
+    public void testDebit() {
+        String mailAddress = "test@example.com";
+        User user = new User(mailAddress, "password", "John", "Doe", "1234567890", "customer", 100.0);
+        when(mockEm.find(User.class, mailAddress)).thenReturn(user);
+
+        userDAO.debit(mailAddress, 30.0);
+
+        verify(mockEm).find(User.class, mailAddress);
+        assertEquals(70.0, user.getBalance());
     }
 }
