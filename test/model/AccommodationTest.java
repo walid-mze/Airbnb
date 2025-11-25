@@ -60,4 +60,31 @@ public class AccommodationTest {
         assertEquals(1, accommodation.getNumberOfRooms());
         assertEquals("New description", accommodation.getDescription());
     }
+
+    @Test
+    public void testDefaultConstructor() {
+        Accommodation emptyAccommodation = new Accommodation();
+        assertEquals("", emptyAccommodation.getName());
+        assertEquals("", emptyAccommodation.getType());
+        assertEquals(0, emptyAccommodation.getCapacity());
+    }
+
+    @Test
+    public void testUpdateWithDifferentValues() {
+        accommodation.update("Beach House", "Villa", 10, 6, "Luxury beachfront villa");
+        assertEquals("Beach House", accommodation.getName());
+        assertEquals("Villa", accommodation.getType());
+        assertEquals(10, accommodation.getCapacity());
+        assertEquals(6, accommodation.getNumberOfRooms());
+        assertEquals("Luxury beachfront villa", accommodation.getDescription());
+    }
+
+    @Test
+    public void testAccommodationCreation() {
+        assertEquals("Lovely Place", accommodation.getName());
+        assertEquals("Apartment", accommodation.getType());
+        assertEquals(4, accommodation.getCapacity());
+        assertEquals(2, accommodation.getNumberOfRooms());
+        assertEquals("A lovely apartment.", accommodation.getDescription());
+    }
 }

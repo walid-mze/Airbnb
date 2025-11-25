@@ -63,4 +63,29 @@ public class BookingTest {
         assertEquals(4, booking.getNbPerson());
         assertEquals(400.0, booking.getTotalPrice());
     }
+
+    @Test
+    public void testDefaultConstructor() {
+        Booking emptyBooking = new Booking();
+        assertNotNull(emptyBooking);
+        assertNotNull(emptyBooking.getBookingDate());
+    }
+
+    @Test
+    public void testBookingWithDifferentNumberOfPersons() {
+        booking.setNbPerson(1);
+        assertEquals(1, booking.getNbPerson());
+        
+        booking.setNbPerson(10);
+        assertEquals(10, booking.getNbPerson());
+    }
+
+    @Test
+    public void testBookingPriceChange() {
+        booking.setTotalPrice(500.0);
+        assertEquals(500.0, booking.getTotalPrice());
+        
+        booking.setTotalPrice(100.0);
+        assertEquals(100.0, booking.getTotalPrice());
+    }
 }

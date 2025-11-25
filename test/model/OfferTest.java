@@ -39,4 +39,45 @@ public class OfferTest {
         assertEquals(160.0, offer.getPricePerNight());
         assertEquals(55.0, offer.getCleaningFee());
     }
+
+    @Test
+    public void testOfferCreation() {
+        assertEquals(user, offer.getUser());
+        assertEquals(accommodation, offer.getAccommodation());
+        assertEquals(start, offer.getStartAvailability());
+        assertEquals(end, offer.getEndAvailability());
+        assertEquals(150.0, offer.getPricePerNight());
+        assertEquals(50.0, offer.getCleaningFee());
+    }
+
+    @Test
+    public void testSetters() {
+        User newUser = new User();
+        Accommodation newAccommodation = new Accommodation();
+        Calendar newStart = Calendar.getInstance();
+        newStart.add(Calendar.DATE, 10);
+        Calendar newEnd = Calendar.getInstance();
+        newEnd.add(Calendar.DATE, 20);
+
+        offer.setUser(newUser);
+        offer.setAccommodation(newAccommodation);
+        offer.setStartAvailability(newStart);
+        offer.setEndAvailability(newEnd);
+        offer.setPricePerNight(200.0);
+        offer.setCleaningFee(75.0);
+
+        assertEquals(newUser, offer.getUser());
+        assertEquals(newAccommodation, offer.getAccommodation());
+        assertEquals(newStart, offer.getStartAvailability());
+        assertEquals(newEnd, offer.getEndAvailability());
+        assertEquals(200.0, offer.getPricePerNight());
+        assertEquals(75.0, offer.getCleaningFee());
+    }
+
+    @Test
+    public void testDefaultConstructor() {
+        Offer emptyOffer = new Offer();
+        assertEquals(emptyOffer.getPricePerNight(), 0.0);
+        assertEquals(emptyOffer.getCleaningFee(), 0.0);
+    }
 }

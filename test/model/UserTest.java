@@ -53,4 +53,27 @@ public class UserTest {
         assertEquals("host", user.getUserType());
         assertEquals(200.0, user.getBalance());
     }
+
+    @Test
+    public void testDefaultConstructor() {
+        User emptyUser = new User();
+        assertNotNull(emptyUser);
+        assertNotNull(emptyUser.getDate());
+    }
+
+    @Test
+    public void testBalanceOperations() {
+        user.setBalance(0.0);
+        assertEquals(0.0, user.getBalance());
+        
+        user.setBalance(500.0);
+        assertEquals(500.0, user.getBalance());
+    }
+
+    @Test
+    public void testUserTypeChange() {
+        assertEquals("customer", user.getUserType());
+        user.setUserType("host");
+        assertEquals("host", user.getUserType());
+    }
 }

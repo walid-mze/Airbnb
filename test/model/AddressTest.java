@@ -47,4 +47,28 @@ public class AddressTest {
         assertTrue(result.contains("123 Main St"));
         assertTrue(result.contains("New York"));
     }
+
+    @Test
+    public void testDefaultConstructor() {
+        Address emptyAddress = new Address();
+        assertNotNull(emptyAddress);
+    }
+
+    @Test
+    public void testAddressCreation() {
+        assertEquals("123 Main St", address.getStreetAndNumber());
+        assertEquals("Apt 4B", address.getComplement());
+        assertEquals("10001", address.getPostalCode());
+        assertEquals("New York", address.getCity());
+        assertEquals("USA", address.getCountry());
+    }
+
+    @Test
+    public void testUpdateWithEmptyComplement() {
+        address.update("100 Simple St", "", "20000", "Washington", "USA");
+        assertEquals("100 Simple St", address.getStreetAndNumber());
+        assertEquals("", address.getComplement());
+        assertEquals("20000", address.getPostalCode());
+        assertEquals("Washington", address.getCity());
+    }
 }
