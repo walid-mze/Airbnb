@@ -36,12 +36,12 @@ public class RoomTest {
     }
 
     @Test
-    public void testSetNumberOfBeds() {
-        room.setNumberOfBeds(2);
-        assertEquals(2, room.getNumberOfBeds());
+    public void testRoomWithDifferentTypes() {
+        room.setType("Single");
+        assertEquals("Single", room.getType());
         
-        room.setNumberOfBeds(4);
-        assertEquals(4, room.getNumberOfBeds());
+        room.setType("Suite");
+        assertEquals("Suite", room.getType());
     }
 
     @Test

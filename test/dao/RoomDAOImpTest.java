@@ -49,18 +49,17 @@ public class RoomDAOImpTest {
 
     @Test
     public void testCreateRoom() {
-        Room room = new Room();
-        room.setType("Double");
-        room.setNumberOfBeds(2);
+        Accommodation accommodation = new Accommodation();
+        String roomType = "Double";
 
-        roomDAO.createRoom(room);
+        roomDAO.createRoom(accommodation, roomType);
 
         ArgumentCaptor<Room> roomCaptor = ArgumentCaptor.forClass(Room.class);
         verify(mockEm).persist(roomCaptor.capture());
 
         Room persistedRoom = roomCaptor.getValue();
         assertEquals("Double", persistedRoom.getType());
-        assertEquals(2, persistedRoom.getNumberOfBeds());
+        assertEquals(accommodation, persistedRoom.getAccommodation());
     }
 
     @Test
@@ -77,17 +76,17 @@ public class RoomDAOImpTest {
 
     @Test
     public void testGetNumberOfRoomsInAccommodation() {
-        Accommodation accommodation = new Accommodation();
-        TypedQuery<Long> mockQuery = mock(TypedQuery.class);
-        when(mockEm.createQuery("SELECT COUNT(r) FROM Room r WHERE r.accommodation = ?1", Long.class))
+        int accommodationId = 1;
+        TypedQuery<Room> mockQuery = mock(TypedQuery.class);
+        when(mockEm.createQuery("SELECT COUNT(r) FROM Room r WHERE r.accommodation.id = ?1", Room.class))
             .thenReturn(mockQuery);
-        when(mockQuery.setParameter(1, accommodation)).thenReturn(mockQuery);
-        when(mockQuery.getSingleResult()).thenReturn(3L);
+        when(mockQuery.setParameter(1, accommodationId)).thenReturn(mockQuery);
+        when(mockQuery.getFirstResult()).thenReturn(3);
 
-        long count = roomDAO.getNumberOfRoomsInAccommodation(accommodation);
+        int count = roomDAO.getNumberOfRoomsInAccommodation(accommodationId);
 
-        assertEquals(3L, count);
-        verify(mockEm).createQuery("SELECT COUNT(r) FROM Room r WHERE r.accommodation = ?1", Long.class);
+        assertEquals(3, count);
+        verify(mockEm).createQuery("SELECT COUNT(r) FROM Room r WHERE r.accommodation.id = ?1", Room.class);
     }
 
     @Test
