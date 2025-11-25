@@ -30,7 +30,8 @@ public class TextToolsTest {
         assertEquals("Chambre", textTools.getTextFromDBEntry("bedroom"));
         assertEquals("Cuisine", textTools.getTextFromDBEntry("kitchen"));
         assertEquals("Salle de bain", textTools.getTextFromDBEntry("bathroom"));
-        assertEquals("Horloge", textTools.getTextFromDBEntry("clock"));
+        assertEquals("Lit simple", textTools.getTextFromDBEntry("singleBed"));
+        assertEquals("Lit double", textTools.getTextFromDBEntry("doubleBed"));
     }
 
     @Test
