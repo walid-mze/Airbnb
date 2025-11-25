@@ -13,14 +13,27 @@ pipeline {
     }
     
     stages {
+        stage('Configure Git') {
+            steps {
+                bat '''
+                    git config --global http.postBuffer 524288000
+                    git config --global core.compression 0
+                '''
+            }
+        }
+        
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/master']],
-                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, shallow: true]],
-                    userRemoteConfigs: [[url: 'https://github.com/msfayoub/Airbnb.git']]
-                ])
+                retry(3) {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/master']],
+                        extensions: [
+                            [$class: 'CloneOption', depth: 0, noTags: false, shallow: false, timeout: 30]
+                        ],
+                        userRemoteConfigs: [[url: 'https://github.com/msfayoub/Airbnb.git']]
+                    ])
+                }
             }
         }
         
