@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: airbnb-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: airbnbdb
+      MYSQL_USER: airbnb
+      MYSQL_PASSWORD: airbnb123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./airbnbdb.sql:/docker-entrypoint-initdb.d/airbnbdb.sql
+    networks:
+      - airbnb-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Airbnb Application
+  airbnb-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: airbnb-booking-app:latest
+    container_name: airbnb-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - airbnb-network
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=airbnbdb
+      - DB_USER=airbnb
+      - DB_PASSWORD=airbnb123
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+
+networks:
+  airbnb-network:
+    driver: bridge

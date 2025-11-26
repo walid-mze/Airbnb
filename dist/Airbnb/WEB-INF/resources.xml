@@ -1,0 +1,9 @@
+<tomee>
+	<Resource id="airbnbdb" type="DataSource">
+	    JdbcDriver com.mysql.cj.jdbc.Driver
+	    JdbcUrl jdbc:mysql://mysql:3306/airbnbdb?useUnicode=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC
+	    UserName airbnb
+	    Password airbnb123
+	    JtaManaged true
+  	</Resource>
+</tomee>

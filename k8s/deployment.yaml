@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbnb-app
+  labels:
+    app: airbnb-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: airbnb-app
+  template:
+    metadata:
+      labels:
+        app: airbnb-app
+    spec:
+      containers:
+      - name: airbnb-app
+        image: airbnb-booking-app:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DB_HOST
+          value: "mysql"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "airbnbdb"
+        - name: DB_USER
+          value: "airbnb"
+        - name: DB_PASSWORD
+          value: "airbnb123"
+        livenessProbe:
+          httpGet:
+            path: /home
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /home
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5

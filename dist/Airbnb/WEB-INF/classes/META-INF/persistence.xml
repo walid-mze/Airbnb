@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+<persistence-unit name="pu" transaction-type="JTA">
+<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+   <jta-data-source>airbnbdb</jta-data-source>
+    <class>model.User</class>
+    <class>model.Accommodation</class>
+    <class>model.Picture</class>
+    <class>model.Address</class>
+    <class>model.Offer</class>
+    <class>model.Room</class>
+    <class>model.Amenity</class>
+    <class>model.Transaction</class>
+    <properties>
+		<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO"/>
+		<property name="openjpa.jdbc.DBDictionary" value="mysql" />
+		<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+		<property name="openjpa.Compatibility" value="CheckDatabaseForCascadePersistToDetachedEntity=true"/>
+  		<property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
+  		<!-- EclipseLink schema generation for TomEE 9 -->
+		<property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+		<property name="eclipselink.ddl-generation.output-mode" value="database"/>
+    </properties>
+  </persistence-unit>
+</persistence>

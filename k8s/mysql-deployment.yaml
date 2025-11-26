@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS airbnbdb;
+    USE airbnbdb;
+    
+    CREATE TABLE IF NOT EXISTS user (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      mailAddress VARCHAR(255),
+      hashedPassword VARCHAR(255),
+      firstname VARCHAR(100),
+      name VARCHAR(100),
+      phoneNumber VARCHAR(20),
+      date DATETIME,
+      userType VARCHAR(50),
+      balance DECIMAL(10,2)
+    );
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_DATABASE
+          value: "airbnbdb"
+        - name: MYSQL_USER
+          value: "airbnb"
+        - name: MYSQL_PASSWORD
+          value: "airbnb123"
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+  clusterIP: None

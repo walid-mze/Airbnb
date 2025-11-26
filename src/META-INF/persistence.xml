@@ -17,6 +17,9 @@
 		<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
 		<property name="openjpa.Compatibility" value="CheckDatabaseForCascadePersistToDetachedEntity=true"/>
   		<property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
+  		<!-- EclipseLink schema generation for TomEE 9 -->
+		<property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+		<property name="eclipselink.ddl-generation.output-mode" value="database"/>
     </properties>
   </persistence-unit>
 </persistence>
