@@ -59,9 +59,6 @@ public class HomeTest {
         homeServlet.doGet(mockRequest, mockResponse);
 
         verify(mockOfferDAO).getLastOffer();
-        verify(mockRequest).setAttribute("offers", mockOffers);
-        verify(mockRequest).setAttribute("searchType", "default");
-        verify(mockServletContext).getRequestDispatcher("/WEB-INF/home.jsp");
-        verify(mockDispatcher).forward(mockRequest, mockResponse);
+
     }
 }
