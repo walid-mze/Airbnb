@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage('Configure Git') {
             steps {
-                bat '''
+                sh '''
                     git config --global http.postBuffer 524288000
                     git config --global core.compression 0
                 '''
@@ -40,8 +40,8 @@ pipeline {
         stage('Compile') {
             steps {
                 echo 'Compiling Java source files...'
-                bat '''
-                    if not exist "build\\classes" mkdir build\\classes
+                sh '''
+                    mkdir -p build/classes
                     javac -encoding ISO-8859-1 -d build/classes -cp "lib/*" -sourcepath src src/controller/*.java src/dao/*.java src/model/*.java src/function/*.java
                 '''
             }
@@ -50,9 +50,9 @@ pipeline {
         stage('Compile Tests') {
             steps {
                 echo 'Compiling test files...'
-                bat '''
-                    if not exist "build\\test-classes" mkdir build\\test-classes
-                    javac -encoding ISO-8859-1 -d build/test-classes -cp "lib/*;build/classes" -sourcepath test test/dao/*.java test/function/*.java test/model/*.java test/controller/*.java
+                sh '''
+                    mkdir -p build/test-classes
+                    javac -encoding ISO-8859-1 -d build/test-classes -cp "lib/*:build/classes" -sourcepath test test/dao/*.java test/function/*.java test/model/*.java test/controller/*.java
                 '''
             }
         }
@@ -60,24 +60,24 @@ pipeline {
         stage('Run Tests with Coverage') {
             steps {
                 echo 'Running JUnit tests with JaCoCo coverage...'
-                bat '''
-                    if not exist "test-results" mkdir test-results
-                    if not exist "coverage" mkdir coverage
+                sh '''
+                    mkdir -p test-results
+                    mkdir -p coverage
                     
-                    REM Run tests with JaCoCo agent
-                    java -javaagent:lib/jacocoagent.jar=destfile=coverage/jacoco.exec ^
-                    -cp "lib/*;build/classes;build/test-classes" ^
-                    org.junit.platform.console.ConsoleLauncher ^
-                    --scan-classpath ^
-                    --reports-dir=test-results ^
+                    # Run tests with JaCoCo agent
+                    java -javaagent:lib/jacocoagent.jar=destfile=coverage/jacoco.exec \
+                    -cp "lib/*:build/classes:build/test-classes" \
+                    org.junit.platform.console.ConsoleLauncher \
+                    --scan-classpath \
+                    --reports-dir=test-results \
                     --disable-banner
                     
-                    REM Generate JaCoCo reports
-                    java -jar lib/jacococli.jar report coverage/jacoco.exec ^
-                    --classfiles build/classes ^
-                    --sourcefiles src ^
-                    --html coverage/html ^
-                    --xml coverage/jacoco.xml ^
+                    # Generate JaCoCo reports
+                    java -jar lib/jacococli.jar report coverage/jacoco.exec \
+                    --classfiles build/classes \
+                    --sourcefiles src \
+                    --html coverage/html \
+                    --xml coverage/jacoco.xml \
                     --csv coverage/jacoco.csv
                 '''
             }
@@ -97,17 +97,17 @@ pipeline {
                 script {
                     def scannerHome = tool 'SonarScanner'
                     withSonarQubeEnv('SonarQube') {
-                        bat """
-                            "${scannerHome}\\bin\\sonar-scanner.bat" ^
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} ^
-                            -Dsonar.projectName="${SONAR_PROJECT_NAME}" ^
-                            -Dsonar.sources=src ^
-                            -Dsonar.tests=test ^
-                            -Dsonar.java.binaries=build/classes ^
-                            -Dsonar.java.test.binaries=build/test-classes ^
-                            -Dsonar.sourceEncoding=ISO-8859-1 ^
-                            -Dsonar.java.libraries=lib/*.jar ^
-                            -Dsonar.junit.reportPaths=test-results ^
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectName="${SONAR_PROJECT_NAME}" \
+                            -Dsonar.sources=src \
+                            -Dsonar.tests=test \
+                            -Dsonar.java.binaries=build/classes \
+                            -Dsonar.java.test.binaries=build/test-classes \
+                            -Dsonar.sourceEncoding=ISO-8859-1 \
+                            -Dsonar.java.libraries=lib/*.jar \
+                            -Dsonar.junit.reportPaths=test-results \
                             -Dsonar.coverage.jacoco.xmlReportPaths=coverage/jacoco.xml
                         """
                     }
@@ -119,18 +119,19 @@ pipeline {
         stage('Package WAR') {
             steps {
                 echo 'Creating WAR file...'
-                bat '''
-                    if not exist "dist" mkdir dist
+                sh '''
+                    mkdir -p dist
 
-                    xcopy /E /I /Y WebContent dist\\Airbnb
+                    cp -r WebContent dist/Airbnb
 
-                    if not exist "dist\\Airbnb\\WEB-INF\\classes" mkdir dist\\Airbnb\\WEB-INF\\classes
-                    xcopy /E /I /Y build\\classes dist\\Airbnb\\WEB-INF\\classes
+                    mkdir -p dist/Airbnb/WEB-INF/classes
+                    cp -r build/classes/* dist/Airbnb/WEB-INF/classes/
 
-                    xcopy /E /I /Y src\\META-INF dist\\Airbnb\\WEB-INF\\classes\\META-INF
+                    mkdir -p dist/Airbnb/WEB-INF/classes/META-INF
+                    cp -r src/META-INF/* dist/Airbnb/WEB-INF/classes/META-INF/
 
                     cd dist
-                    "%JAVA_HOME%\\bin\\jar" -cvf airbnb.war -C Airbnb .
+                    jar -cvf airbnb.war -C Airbnb .
                 '''
             }
         }
